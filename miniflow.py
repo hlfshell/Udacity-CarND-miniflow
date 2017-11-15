@@ -1,4 +1,4 @@
-
+import numpy as np
 
 class Node(object):
     def __init__(self, inbound_nodes=[]):
@@ -52,6 +52,15 @@ class Linear(Node):
 
         self.value += self.inbound_nodes[2].value
 
+class Sigmoid(Node):
+    def __init__(self, x):
+        Node.__init__(self, [x])
+
+    def _sigmoid(self, x):
+        return 1 / ( 1 + np.exp(-x))
+
+    def forward(self):
+        self.value = self._sigmoid(self.inbound_nodes[0].value)
 
 
 def topological_sort(feed_dict):
