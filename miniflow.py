@@ -62,6 +62,28 @@ class Sigmoid(Node):
     def forward(self):
         self.value = self._sigmoid(self.inbound_nodes[0].value)
 
+class MSE(Node):
+    def __init__(self, y, a):
+        Node.__init__(self, [y, a])
+
+    def forward(self):
+        """
+        Calculates the mean squared error.
+        """
+        # NOTE: We reshape these to avoid possible matrix/vector broadcast
+        # errors.
+        #
+        # For example, if we subtract an array of shape (3,) from an array of shape
+        # (3,1) we get an array of shape(3,3) as the result when we want
+        # an array of shape (3,1) instead.
+        #
+        # Making both arrays (3,1) insures the result is (3,1) and does
+        # an elementwise subtraction as expected.
+        y = self.inbound_nodes[0].value.reshape(-1, 1)
+        a = self.inbound_nodes[1].value.reshape(-1, 1)
+        
+        self.value = (1/len(y)) *\
+             np.sum(np.power(y - a, 2))
 
 def topological_sort(feed_dict):
     """
@@ -122,3 +144,16 @@ def forward_pass(output_node, sorted_nodes):
 
     return output_node.value
 
+#Note, that forward_pass changed from above to below
+#from part 9 to 10
+def forward_pass(graph):
+    """
+    Performs a forward pass through a list of sorted Nodes.
+
+    Arguments:
+
+        `graph`: The result of calling `topological_sort`.
+    """
+    # Forward pass
+    for n in graph:
+        n.forward()
